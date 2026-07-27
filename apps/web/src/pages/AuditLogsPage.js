@@ -1,0 +1,58 @@
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api, authHeaders } from "../lib/api";
+import { PageHeader } from "../App";
+function Icon({ d, size = 18 }) {
+    return (_jsx("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("path", { d: d }) }));
+}
+const MODULE_COLORS = {
+    AUTH: "#3b82f6",
+    POS: "#f97316",
+    ORDERS: "#8b5cf6",
+    INVENTORY: "#10b981",
+    MENU: "#ec4899",
+    CRM: "#06b6d4",
+    SYSTEM: "#ef4444",
+    TABLES: "#fbbf24",
+    FINANCE: "#22c55e",
+};
+const ACTION_COLORS = {
+    CREATE: "#10b981",
+    UPDATE: "#3b82f6",
+    DELETE: "#ef4444",
+    LOGIN: "#8b5cf6",
+    CHANGE: "#f97316",
+};
+function getActionColor(action) {
+    const prefix = Object.keys(ACTION_COLORS).find((k) => action.includes(k));
+    return prefix ? ACTION_COLORS[prefix] : "var(--muted)";
+}
+export function AuditLogsPage({ token }) {
+    const [module, setModule] = useState("ALL");
+    const [search, setSearch] = useState("");
+    const { data: logs = [], isLoading } = useQuery({
+        queryKey: ["audit-logs"],
+        queryFn: async () => (await api.get("/audit-logs", { headers: authHeaders(token) })).data,
+    });
+    const modules = ["ALL", ...Object.keys(MODULE_COLORS)];
+    const filtered = logs.filter((log) => {
+        if (module !== "ALL" && log.module !== module)
+            return false;
+        if (search) {
+            const q = search.toLowerCase();
+            return (log.action?.toLowerCase().includes(q) ||
+                log.userEmail?.toLowerCase().includes(q) ||
+                log.details?.toLowerCase().includes(q));
+        }
+        return true;
+    });
+    return (_jsxs(_Fragment, { children: [_jsx(PageHeader, { title: "Audit Logs", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", children: _jsxs("span", { style: { fontSize: "0.78rem", color: "var(--muted)" }, children: [filtered.length, " records"] }) }), _jsxs("div", { className: "page-body", children: [_jsx("div", { className: "pill-group", style: { marginBottom: 16 }, children: modules.map((m) => (_jsxs("button", { className: `pill ${module === m ? "active" : ""}`, onClick: () => setModule(m), children: [m !== "ALL" && (_jsx("span", { style: { width: 7, height: 7, borderRadius: "50%", background: MODULE_COLORS[m], display: "inline-block", marginRight: 6 } })), m] }, m))) }), _jsx("div", { style: { marginBottom: 14, maxWidth: 360 }, children: _jsx("input", { placeholder: "Search action, email, details\u2026", value: search, onChange: (e) => setSearch(e.target.value) }) }), isLoading ? (_jsxs("div", { className: "loading-state", children: [_jsx("div", { className: "spinner" }), " Loading audit logs\u2026"] })) : filtered.length === 0 ? (_jsxs("div", { className: "empty-state", children: [_jsx("div", { className: "empty-state-icon", children: "\uD83D\uDCCB" }), _jsx("p", { children: "No audit logs found" })] })) : (_jsx("div", { className: "card", children: _jsx("div", { className: "table-container", children: _jsxs("table", { className: "data-table", children: [_jsx("thead", { children: _jsxs("tr", { children: [_jsx("th", { children: "Timestamp" }), _jsx("th", { children: "User" }), _jsx("th", { children: "Module" }), _jsx("th", { children: "Action" }), _jsx("th", { children: "Details" })] }) }), _jsx("tbody", { children: filtered.slice(0, 200).map((log) => (_jsxs("tr", { children: [_jsx("td", { style: { fontSize: "0.73rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace", whiteSpace: "nowrap" }, children: new Date(log.createdAt).toLocaleString("en-PK", {
+                                                        month: "short", day: "numeric",
+                                                        hour: "2-digit", minute: "2-digit", second: "2-digit"
+                                                    }) }), _jsx("td", { style: { fontSize: "0.8rem", color: "var(--fg-2)" }, children: log.userEmail || "System" }), _jsx("td", { children: _jsx("span", { className: "badge", style: {
+                                                            background: `${MODULE_COLORS[log.module] || "var(--muted)"}20`,
+                                                            color: MODULE_COLORS[log.module] || "var(--muted)",
+                                                            border: `1px solid ${MODULE_COLORS[log.module] || "var(--muted)"}40`
+                                                        }, children: log.module }) }), _jsx("td", { children: _jsx("span", { style: { fontSize: "0.78rem", fontWeight: 700, color: getActionColor(log.action), fontFamily: "'JetBrains Mono', monospace" }, children: log.action }) }), _jsx("td", { style: { fontSize: "0.78rem", color: "var(--fg-2)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: log.details })] }, log.id))) })] }) }) }))] })] }));
+}

@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  OWNER
+  MANAGER
+  CASHIER
+  WAITER
+  KITCHEN
+}
+
+enum OrderType {
+  DINE_IN
+  TAKE_AWAY
+  DELIVERY
+}
+
+enum OrderStatus {
+  NEW
+  PREPARING
+  READY
+  SERVED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  JAZZCASH
+  EASYPAISA
+  BANK_TRANSFER
+}
+
+enum MembershipTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+model Branch {
+  id           String     @id @default(cuid())
+  name         String
+  code         String     @unique
+  address      String?
+  phone        String?
+  city         String?
+  isActive     Boolean    @default(true)
+  isHeadOffice Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  customers    Customer[]
+  orders       Order[]
+  users        User[]
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role
+  active       Boolean    @default(true)
+  branchId     String?
+  branch       Branch?    @relation(fields: [branchId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  orders       Order[]    @relation("CashierOrders")
+  auditLogs    AuditLog[]
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  isActive  Boolean    @default(true)
+  sortOrder Int        @default(0)
+  items     MenuItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+}
+
+model MenuItem {
+  id              String      @id @default(cuid())
+  categoryId      String
+  category        Category    @relation(fields: [categoryId], references: [id])
+  name            String
+  description     String?
+  imageUrl        String?
+  sku             String?
+  preparationTime Int         @default(10)
+  availability    Boolean     @default(true)
+  isPopular       Boolean     @default(false)
+  isFavorite      Boolean     @default(false)
+  costPrice       Float       @default(0)
+  sellingPrice    Float
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+  orderItems      OrderItem[]
+}
+
+model DiningTable {
+  id          String   @id @default(cuid())
+  name        String
+  capacity    Int
+  zone        String?
+  isReserved  Boolean  @default(false)
+  isOccupied  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  activeOrder Order?
+}
+
+model Customer {
+  id               String         @id @default(cuid())
+  name             String
+  phone            String         @unique
+  email            String?
+  address          String?
+  city             String?
+  area             String?
+  notes            String?
+  birthday         DateTime?
+  marketingConsent Boolean        @default(false)
+  membershipTier   MembershipTier @default(BRONZE)
+  loyaltyPoints    Int            @default(0)
+  totalSpending    Float          @default(0)
+  visitCount       Int            @default(0)
+  lastVisitAt      DateTime?
+  branchId         String?
+  branch           Branch?        @relation(fields: [branchId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  deletedAt        DateTime?
+  orders           Order[]
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  invoiceNo       String         @unique
+  customerId      String?
+  customer        Customer?      @relation(fields: [customerId], references: [id])
+  customerName    String?
+  customerPhone   String?
+  customerEmail   String?
+  customerAddress String?
+  customerCity    String?
+  cashierId       String?
+  cashier         User?          @relation("CashierOrders", fields: [cashierId], references: [id])
+  branchId        String?
+  branch          Branch?        @relation(fields: [branchId], references: [id])
+  tableId         String?        @unique
+  table           DiningTable?   @relation(fields: [tableId], references: [id])
+  status          OrderStatus    @default(NEW)
+  orderType       OrderType
+  paymentMethod   PaymentMethod?
+  notes           String?
+  subtotal        Float
+  discount        Float          @default(0)
+  tax             Float          @default(0)
+  serviceCharge   Float          @default(0)
+  tipAmount       Float          @default(0)
+  total           Float
+  isHeld          Boolean        @default(false)
+  mergedIntoId    String?
+  mergedInto      Order?         @relation("MergedOrder", fields: [mergedIntoId], references: [id])
+  mergedChildren  Order[]        @relation("MergedOrder")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  itemId    String
+  item      MenuItem @relation(fields: [itemId], references: [id])
+  quantity  Int
+  unitPrice Float
+  note      String?
+}
+
+model RestaurantSettings {
+  id                       String  @id @default("default")
+  name                     String  @default("Desert Bite PIZZA KITCHEN")
+  tagline                  String  @default("Dine & Take Away")
+  address                  String  @default("Akbar Plaza, Layyah Road Chowk Azam, Layyah")
+  phone                    String  @default("+923026440357")
+  whatsapp                 String  @default("+923026440357")
+  currency                 String  @default("PKR")
+  currencySymbol           String  @default("Rs.")
+  taxRate                  Float   @default(0.05)
+  serviceChargeRate        Float   @default(0)
+  parentBrand              String  @default("GHOSIA Juice")
+  requireCustomerOnCheckout Boolean @default(true)
+}
+
+model InventoryItem {
+  id             String    @id @default(cuid())
+  name           String
+  sku            String?
+  supplier       String?
+  stockLevel     Float     @default(0)
+  unit           String    @default("pcs")
+  lowStockLevel  Float     @default(5)
+  expiryDate     DateTime?
+  waste          Float     @default(0)
+  lastStockInAt  DateTime?
+  lastStockOutAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userEmail String?
+  action    String
+  module    String   @default("SYSTEM")
+  entity    String
+  entityId  String?
+  details   String?
+  metadata  String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model FinanceRecord {
+  id            String        @id @default(cuid())
+  type          String        @default("INCOME")
+  category      String        @default("Sales")
+  description   String?
+  amount        Float         @default(0)
+  paymentMethod PaymentMethod @default(CASH)
+  date          DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+}

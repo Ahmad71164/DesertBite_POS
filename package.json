@@ -1,0 +1,72 @@
+{
+  "name": "restaurant-pro-erp-pos",
+  "version": "1.0.0",
+  "description": "Desert Bite — Full-featured Restaurant POS, KDS, CRM & ERP System",
+  "author": "Desert Bite Restaurant",
+  "private": true,
+  "main": "electron/main.js",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npx concurrently \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm --workspace @restaurant-pro/api run dev",
+    "dev:web": "npm --workspace @restaurant-pro/web run dev",
+    "desktop": "npx concurrently \"npm:dev\" \"npx electron .\"",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "build:shared": "npm --workspace @restaurant-pro/shared run build",
+    "build:api": "npm --workspace @restaurant-pro/api run build",
+    "build:web": "npm --workspace @restaurant-pro/web run build",
+    "dist:desktop": "npm run build && npx electron-builder --win --publish=never",
+    "lint": "npm run lint:api && npm run lint:web",
+    "lint:api": "npm --workspace @restaurant-pro/api run lint",
+    "lint:web": "npm --workspace @restaurant-pro/web run lint",
+    "db:generate": "npm --workspace @restaurant-pro/api run db:generate",
+    "db:push": "npm --workspace @restaurant-pro/api run db:push",
+    "db:seed": "npm --workspace @restaurant-pro/api run db:seed",
+    "setup:db": "npm run db:generate && npm run db:push && npm run db:seed"
+  },
+  "build": {
+    "appId": "com.desertbite.pos",
+    "productName": "Desert Bite",
+    "copyright": "Copyright © 2026 Desert Bite",
+    "icon": "build/icon.png",
+    "directories": {
+      "output": "release-desktop"
+    },
+    "asar": false,
+    "files": [
+      "electron/**/*",
+      "apps/api/dist/**/*",
+      "apps/api/prisma/**/*",
+      "apps/web/dist/**/*",
+      "node_modules/@prisma/**/*",
+      "node_modules/prisma/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "apps/api/prisma/restaurant.db",
+        "to": "app/apps/api/prisma/restaurant.db"
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Desert Bite POS"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}
