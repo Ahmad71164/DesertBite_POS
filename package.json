@@ -10,6 +10,7 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "npm --workspace @restaurant-pro/api run start",
     "dev": "npx concurrently \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "npm --workspace @restaurant-pro/api run dev",
     "dev:web": "npm --workspace @restaurant-pro/web run dev",
