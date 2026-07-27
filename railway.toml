@@ -1,8 +1,8 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm run build:shared && npm run build:api"
+buildCommand = "npm ci --ignore-scripts && npm run build:shared && npm run build:api"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm --workspace @restaurant-pro/api run start"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5

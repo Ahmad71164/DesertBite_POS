@@ -1,8 +1,9 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm run build"
+# Run from REPO ROOT (not apps/api). Set Railway "Root Directory" to / (repo root).
+buildCommand = "npm ci --ignore-scripts && npx prisma generate --schema=apps/api/prisma/schema.prisma && npm run build:shared && npm run build:api"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "node apps/api/dist/server.cjs"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
