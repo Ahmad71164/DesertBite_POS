@@ -1172,7 +1172,10 @@ async function start() {
   });
 }
 
-start().catch((err) => {
-  console.error("Failed to start API:", err?.message ?? err);
-  process.exit(1);
-});
+// Only start the server when run directly (not in Vercel serverless)
+if (process.env.VERCEL !== "1" && !process.env.NOW_REGION) {
+  start().catch((err) => {
+    console.error("Failed to start API:", err?.message ?? err);
+    process.exit(1);
+  });
+}

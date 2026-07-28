@@ -1,5 +1,11 @@
 import axios from "axios";
-const API_BASES = ["http://localhost:5000/api", "/api"];
+const rawEnvUrl = import.meta.env.VITE_API_URL;
+const envApiUrl = rawEnvUrl ? (rawEnvUrl.endsWith("/api") ? rawEnvUrl : `${rawEnvUrl.replace(/\/$/, "")}/api`) : null;
+const API_BASES = [
+    ...(envApiUrl ? [envApiUrl] : []),
+    "http://localhost:5000/api",
+    "/api"
+];
 let resolvedBase = API_BASES[0];
 export const apiClient = axios.create({
     baseURL: resolvedBase,

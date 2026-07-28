@@ -1,6 +1,15 @@
 import axios from "axios";
-/** Try direct URL first (most reliable on Windows), then Vite proxy */
-const API_BASES = ["http://localhost:5000/api", "/api"];
+const rawEnvUrl = import.meta.env.VITE_API_URL;
+const envApiUrl = rawEnvUrl ? (rawEnvUrl.endsWith("/api") ? rawEnvUrl : `${rawEnvUrl.replace(/\/$/, "")}/api`) : null;
+const isBrowser = typeof window !== "undefined";
+const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+/** Try VITE_API_URL, relative /api, or direct localhost URL */
+const API_BASES = [
+    ...(envApiUrl ? [envApiUrl] : []),
+    ...(isBrowser && !isLocalhost ? ["/api"] : []),
+    "http://localhost:5000/api",
+    "/api"
+];
 export const api = axios.create({
     baseURL: API_BASES[0],
     timeout: 15000,
