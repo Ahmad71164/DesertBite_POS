@@ -11,11 +11,11 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { PrismaClient, Role, OrderStatus, PaymentMethod } from "@prisma/client";
 import { z } from "zod";
-import { setupDatabaseEnv, DATABASE_FILE } from "./db";
-import { initDatabase } from "./init-db";
-import { seedMenu, bootstrapDatabase } from "./seed-menu";
-import { upsertCustomerFromOrder, searchCustomers } from "./services/customer";
-import { logAudit } from "./services/audit";
+import { setupDatabaseEnv, DATABASE_FILE } from "./db.js";
+import { initDatabase } from "./init-db.js";
+import { seedMenu, bootstrapDatabase } from "./seed-menu.js";
+import { upsertCustomerFromOrder, searchCustomers } from "./services/customer.js";
+import { logAudit } from "./services/audit.js";
 
 const getDirname = () => {
   try {
@@ -38,7 +38,9 @@ function calculateOrderTotals(subtotal: number, discount: number, taxRate: numbe
   return { subtotal, discount: safeDiscount, tax, serviceCharge, total };
 }
 
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
 export const app = express();
 const PORT = Number(process.env.PORT ?? 5000);
 const JWT_SECRET = process.env.JWT_SECRET ?? "dev-secret";
