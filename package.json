@@ -19,6 +19,7 @@
     "dev:web": "npm --workspace @restaurant-pro/web run dev",
     "desktop": "npx concurrently \"npm:dev\" \"npx electron .\"",
     "build": "npm run build:shared && npm run build:web",
+    "vercel-build": "cd apps/api && npx prisma generate && cd ../.. && npm run build:shared && npm run build:web",
     "build:shared": "npm --workspace @restaurant-pro/shared run build",
     "build:api": "npm --workspace @restaurant-pro/api run build",
     "build:web": "npm --workspace @restaurant-pro/web run build",
