@@ -3,9 +3,13 @@ import axios from "axios";
 const rawEnvUrl = import.meta.env.VITE_API_URL as string | undefined;
 const envApiUrl = rawEnvUrl ? (rawEnvUrl.endsWith("/api") ? rawEnvUrl : `${rawEnvUrl.replace(/\/$/, "")}/api`) : null;
 
-/** Try VITE_API_URL, direct localhost URL, or Vite proxy fallback */
+const isBrowser = typeof window !== "undefined";
+const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+/** Try VITE_API_URL, relative /api, or direct localhost URL */
 const API_BASES = [
   ...(envApiUrl ? [envApiUrl] : []),
+  ...(isBrowser && !isLocalhost ? ["/api"] : []),
   "http://localhost:5000/api",
   "/api"
 ];

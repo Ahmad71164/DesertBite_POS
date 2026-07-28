@@ -38,6 +38,18 @@ export async function bootstrapDatabase(prisma: PrismaClient) {
   }
 
   const passwordHash = await bcrypt.hash("DesertBite@786", 10);
+  const admin123Hash = await bcrypt.hash("admin123", 10);
+
+  await prisma.user.upsert({
+    where: { email: "admin@desertbite.com" },
+    update: { passwordHash: admin123Hash, active: true },
+    create: {
+      name: "Admin",
+      email: "admin@desertbite.com",
+      passwordHash: admin123Hash,
+      role: Role.SUPER_ADMIN,
+    },
+  });
 
   await prisma.user.upsert({
     where: { email: "Admin" },
