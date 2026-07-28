@@ -4,6 +4,9 @@
   "description": "Desert Bite — Full-featured Restaurant POS, KDS, CRM & ERP System",
   "author": "Desert Bite Restaurant",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "main": "electron/main.js",
   "workspaces": [
     "apps/*",
