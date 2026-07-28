@@ -1,2 +1,5 @@
-// Vercel Serverless Function entrypoint
-export { app as default } from "../apps/api/src/server.js";
+import { app } from "../apps/api/src/server.js";
+
+export default function handler(req: any, res: any) {
+  return app(req, res);
+}
