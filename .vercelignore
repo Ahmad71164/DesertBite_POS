@@ -1,13 +1,4 @@
-node_modules
-apps/api/node_modules
-apps/web/node_modules
-packages/shared/node_modules
 release-desktop
 dist-desktop
-apps/web/dist
-apps/api/dist
-packages/shared/dist
-.git
-build
 *.db
 *.sqlite
