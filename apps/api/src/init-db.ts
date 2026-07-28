@@ -1,8 +1,8 @@
 import { execSync } from "node:child_process";
 import path from "node:path";
 import { PrismaClient } from "@prisma/client";
-import { getApiRoot, getDatabaseUrl, DATABASE_FILE, setupDatabaseEnv } from "./db.js";
-import { bootstrapDatabase, seedMenu } from "./seed-menu.js";
+import { getApiRoot, getDatabaseUrl, DATABASE_FILE, setupDatabaseEnv } from "./db";
+import { bootstrapDatabase, seedMenu } from "./seed-menu";
 
 export { setupDatabaseEnv };
 

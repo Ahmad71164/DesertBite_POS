@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient, Role } from "@prisma/client";
-import { DESERT_BITE_MENU } from "../prisma/menu-data.js";
+import { DESERT_BITE_MENU } from "../prisma/menu-data";
 
 export async function seedMenu(prisma: PrismaClient) {
   await prisma.orderItem.deleteMany();
