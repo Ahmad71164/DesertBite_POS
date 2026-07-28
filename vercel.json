@@ -3,7 +3,7 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "apps/web/dist",
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "includeFiles": "apps/api/prisma/**",
       "maxDuration": 30
     }
@@ -11,7 +11,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index"
+      "destination": "/api/index.js"
     },
     {
       "source": "/((?!api/).*)",

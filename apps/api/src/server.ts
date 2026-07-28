@@ -188,7 +188,7 @@ app.post("/api/users", requireAuth([Role.SUPER_ADMIN, Role.OWNER]), async (req: 
     const { password, ...rest } = parsed.data;
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { ...rest, passwordHash },
+      data: { ...rest, passwordHash } as any,
       include: { branch: true },
     });
 
@@ -477,7 +477,7 @@ app.post("/api/menu/categories", requireAuth([Role.SUPER_ADMIN, Role.OWNER, Role
   const schema = z.object({ name: z.string().min(2), sortOrder: z.number().int().optional() });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
-  const category = await prisma.category.create({ data: parsed.data });
+  const category = await prisma.category.create({ data: parsed.data as any });
 
   await logAudit(prisma, {
     userId: req.user?.id,
@@ -529,7 +529,7 @@ app.post("/api/menu/items", requireAuth([Role.SUPER_ADMIN, Role.OWNER, Role.MANA
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
-  const item = await prisma.menuItem.create({ data: parsed.data });
+  const item = await prisma.menuItem.create({ data: parsed.data as any });
 
   await logAudit(prisma, {
     userId: req.user?.id,
@@ -615,7 +615,7 @@ app.get("/api/customers/:id", requireAuth(), async (req, res) => {
 app.post("/api/customers", requireAuth(), async (req: AuthRequest, res) => {
   const schema = z.object({
     name: z.string().min(2),
-    phone: z.string().min(8),
+    phone: z.string().optional(),
     email: z.string().email().optional(),
     address: z.string().optional(),
     city: z.string().optional(),
@@ -623,7 +623,7 @@ app.post("/api/customers", requireAuth(), async (req: AuthRequest, res) => {
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
-  const customer = await upsertCustomerFromOrder(prisma, parsed.data, 0);
+  const customer = await upsertCustomerFromOrder(prisma, parsed.data as any, 0);
 
   await logAudit(prisma, {
     userId: req.user?.id,
@@ -688,7 +688,7 @@ app.post("/api/branches", requireAuth([Role.SUPER_ADMIN, Role.OWNER]), async (re
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
-  const branch = await prisma.branch.create({ data: parsed.data });
+  const branch = await prisma.branch.create({ data: parsed.data as any });
 
   await logAudit(prisma, {
     userId: req.user?.id,
@@ -898,7 +898,7 @@ app.post("/api/tables", requireAuth([Role.SUPER_ADMIN, Role.OWNER, Role.MANAGER]
   const schema = z.object({ name: z.string(), capacity: z.number().int().positive(), zone: z.string().optional() });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
-  const table = await prisma.diningTable.create({ data: parsed.data });
+  const table = await prisma.diningTable.create({ data: parsed.data as any });
   res.status(201).json(table);
 });
 
@@ -932,7 +932,7 @@ app.post("/api/inventory", requireAuth([Role.SUPER_ADMIN, Role.OWNER, Role.MANAG
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
-  const item = await prisma.inventoryItem.create({ data: parsed.data });
+  const item = await prisma.inventoryItem.create({ data: parsed.data as any });
 
   await logAudit(prisma, {
     userId: req.user?.id,
@@ -1181,3 +1181,6 @@ if (process.env.VERCEL !== "1" && !process.env.NOW_REGION) {
     process.exit(1);
   });
 }
+
+export default app;
+
