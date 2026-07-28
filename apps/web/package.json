@@ -10,7 +10,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@restaurant-pro/shared": "file:../../packages/shared",
+    "@restaurant-pro/shared": "1.0.0",
     "@tanstack/react-query": "^5.71.5",
     "axios": "^1.8.4",
     "clsx": "^2.1.1",
